@@ -15,6 +15,7 @@ sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 def song_features(track):
     track_info = track["track"]
+    track_id = track_info["id"]
     track_name = track_info['name']
     artist = [artist["name"] for artist in track["track"]["artists"]]
     track_name = track_name + "-" + artist[0]
@@ -29,7 +30,7 @@ def song_features(track):
             with open(f"songs/{record_name}.mp3", "wb") as f:
                 f.write(response.content)
             y, sr = librosa.load(f"songs/{record_name}.mp3")
-
+            audio_features = sp.audio_features([track_id])[0]
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
             chroma = librosa.feature.chroma_stft(y=y, sr=sr)
             rms = librosa.feature.rms(y=y)
@@ -61,6 +62,17 @@ def song_features(track):
             spectral_rolloff_mean = np.mean(spectral_rolloff)
             spectral_rolloff_std = np.std(spectral_rolloff)
 
+            speechiness = audio_features['speechiness']
+            duration = audio_features['duration_ms']
+            valence = audio_features['valence']
+            inst = audio_features['instrumentalness']
+            key = audio_features['key']
+            danceability = audio_features['danceability']
+            energy = audio_features['energy']
+            mode = audio_features['mode']
+            acousticness = audio_features['acousticness']
+            loudness = audio_features['loudness']
+
             return {
                 'Track Name': track_name,
                 'Tempo Mean': tempo_mean,
@@ -82,12 +94,23 @@ def song_features(track):
                 'Spectral Flatness Std': spectral_flatness_std,
                 'Spectral Rolloff Mean': spectral_rolloff_mean,
                 'Spectral Rolloff Std': spectral_rolloff_std,
+                "Speechiness": speechiness,
+                "Duration": duration,
+                "Valence": valence,
+                "Instrumentalness": inst,
+                "Key": key,
+                "Danceability": danceability,
+                "Energy": energy,
+                "Loudness": loudness,
+                "Mode": mode,
+                "Acousticness": acousticness
+
             }
         except FileNotFoundError:
             return None
 
 
-def collect(list, genre):
+def collect(list):
     data = []
     for id in list:
         playlist = sp.playlist(id)
@@ -98,38 +121,35 @@ def collect(list, genre):
             if features:
                 data.append({
                     **features,
-                    'Genre': genre
                 })
     df = pd.DataFrame(data)
-    df.to_csv(genre + ".csv", index=False)
+    df.to_csv("tacks.csv", index=False)
 
 
-rock_artists = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06evO4pjcGq",
+artists_list = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06evO4pjcGq",
                 "mor_ve_ötesi_id": "37i9dQZF1DZ06evO37d71q", "yüz_kon_id": "37i9dQZF1DZ06evO4iwPYi",
-                "gripin_id": "37i9dQZF1DZ06evO2kdV6i", "şebo_id": "37i9dQZF1DZ06evO4boMuq",
-                "dktt_id": "37i9dQZF1DZ06evO0qnRN8"}
+                "gripin_id": "37i9dQZF1DZ06evO2kdV6i", "sebo_id": "37i9dQZF1DZ06evO4boMuq",
+                "dktt_id": "37i9dQZF1DZ06evO0qnRN8", "müslüm_id": "37i9dQZF1DZ06evO2srcKu",
+                "ferdi_id": "37i9dQZF1DZ06evO46IAAq", "orhan_id": "37i9dQZF1DZ06evO2XMuRB",
+                "azer_id": "37i9dQZF1DZ06evO1wh6bn", "bergen_id": "37i9dQZF1DZ06evO0pNECV",
+                "güllü_id": "37i9dQZF1DZ06evO2XTAGn", "cengiz_id": "37i9dQZF1DZ06evO4aMJc9",
+                "ebru_id": "37i9dQZF1DZ06evO3hP8GV", "muratd_id": "37i9dQZF1DZ06evO3FyQ4o",
+                "muratb_id": "37i9dQZF1DZ06evO2Y5YYd", "hadise_id": "37i9dQZF1DZ06evO0f9PCM",
+                "gülşen_id": "37i9dQZF1DZ06evO0VwzCF", "hande_id": "37i9dQZF1DZ06evO00yqP5",
+                "simge_id": "37i9dQZF1DZ06evO2Rwuis", "serdar_id": "37i9dQZF1DZ06evO4vmUE1",
+                "aleyna_id": "37i9dQZF1DZ06evO2sapJA", "edis_id": "37i9dQZF1DZ06evO0SXlWG",
+                "neşet_id": "37i9dQZF1DZ06evO0CZYS8", "musa_id": "37i9dQZF1DZ06evO1dBpgJ",
+                "kıvırcık_id": "37i9dQZF1DZ06evO3antFX", "abdal_id": "37i9dQZF1DZ06evO3rmCwa",
+                "oguz_id": "37i9dQZF1DZ06evO0c2O1g", "ahmet_id": "37i9dQZF1DZ06evO16XtP7",
+                "selda_id": "37i9dQZF1DZ06evO1C2hTu", "mahzuni_id": "37i9dQZF1DZ06evO2xg7aQ",
+                "semicenk_id": "37i9dQZF1DZ06evO0TOYhk", "tugkan_id": "37i9dQZF1DZ06evO1iny4U",
+                "goksel_id": "37i9dQZF1DZ06evO2vCLCL", "sezen_id": "37i9dQZF1DZ06evO3zTpza",
+                "kalben_id": "37i9dQZF1DZ06evO2BNFV6", "gece_yolc_id": "37i9dQZF1DZ06evO18YRrA",
+                "kahraman_id": "37i9dQZF1DZ06evO1XGrC1", "pera_id": "37i9dQZF1DZ06evO0DNbwI",
+                "soner_id": "37i9dQZF1DZ06evO2RUXEl", "model_id": "37i9dQZF1DZ06evO1agBCV",
+                "emircan_id": "37i9dQZF1DZ06evO2UKnCF", "84_id": "37i9dQZF1DZ06evO4ziOJO",
+                "oguz_yilmaz_id": "37i9dQZF1DZ06evO4ABqCQ", "namık_id": "37i9dQZF1DZ06evO0gradV",
+                "ibocan_id": "37i9dQZF1DZ06evO3Yz8DC", "yasemin_id": "37i9dQZF1DZ06evO4Bv3Iu"}
 
-arabesk_artists = {"müslüm_id": "37i9dQZF1DZ06evO2srcKu", "ferdi_id": "37i9dQZF1DZ06evO46IAAq",
-                   "orhan_id": "37i9dQZF1DZ06evO2XMuRB", "azer_id": "37i9dQZF1DZ06evO1wh6bn",
-                   "bergen_id": "37i9dQZF1DZ06evO0pNECV", "güllü_id": "37i9dQZF1DZ06evO2XTAGn",
-                   "cengiz_id": "37i9dQZF1DZ06evO4aMJc9", "ebru_id": "37i9dQZF1DZ06evO3hP8GV"}
-
-pop_artists = {"muratd_id": "37i9dQZF1DZ06evO3FyQ4o", "muratb_id": "37i9dQZF1DZ06evO2Y5YYd",
-               "hadise_id": "37i9dQZF1DZ06evO0f9PCM", "gülşen_id": "37i9dQZF1DZ06evO0VwzCF",
-               "hande_id": "37i9dQZF1DZ06evO00yqP5", "simge_id": "37i9dQZF1DZ06evO2Rwuis",
-               "serdar_id": "37i9dQZF1DZ06evO4vmUE1", "aleyna_id": "37i9dQZF1DZ06evO2sapJA",
-               "edis_id": "37i9dQZF1DZ06evO0SXlWG"}
-
-türkü_artists = {"neşet_id": "37i9dQZF1DZ06evO0CZYS8", "musa_id": "37i9dQZF1DZ06evO1dBpgJ",
-                 "kıvırcık_id": "37i9dQZF1DZ06evO3antFX", "abdal_id": "37i9dQZF1DZ06evO3rmCwa",
-                 "oguz_id": "37i9dQZF1DZ06evO0c2O1g", "ahmet_id": "37i9dQZF1DZ06evO16XtP7",
-                 "selda_id": "37i9dQZF1DZ06evO1C2hTu", "mahzuni_id": "37i9dQZF1DZ06evO2xg7aQ"}
-
-rock_list_ids = rock_artists.values()
-arabesk_list_ids = arabesk_artists.values()
-pop_list_ids = pop_artists.values()
-türkü_list_ids = türkü_artists.values()
-collect(rock_list_ids, "Rock")
-collect(arabesk_list_ids, "Arabesk")
-collect(pop_list_ids, "Pop")
-collect(türkü_list_ids, "Türkü")
+artist_ids = artists_list.values()
+collect(artist_ids)
