@@ -5,9 +5,10 @@ import requests
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import re
+import time
 
-client_id = '7da03a37e45742b08663684e0f96e084'
-client_secret = '9efa3aadcd4344ebb6834eb349b58cc7'
+client_id = 'd0614f277dec403bb95bf3e3a2c99418'
+client_secret = '61cfba56b3fc477781f8f240471f5809'
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -110,20 +111,31 @@ def song_features(track):
             return None
 
 
-def collect(list):
+def collect(list, name):
     data = []
     for id in list:
         playlist = sp.playlist(id)
         tracks = playlist["tracks"]["items"]
 
         for track in tracks:
-            features = song_features(track)
-            if features:
-                data.append({
-                    **features,
-                })
+            retry_count = 0
+            while retry_count < 3:  # Maximum number of retry attempts
+                try:
+                    features = song_features(track)
+                    if features:
+                        data.append({
+                            **features,
+                        })
+                    break  # Break out of the retry loop if successful
+                except Exception as e:
+                    print(f"Error processing track: {e}")
+                    retry_count += 1
+                    # backoff-retry strategy
+                    wait_time = 2 ** retry_count
+                    print(f"Retrying in {wait_time} seconds...")
+                    time.sleep(wait_time)
     df = pd.DataFrame(data)
-    df.to_csv("tacks.csv", index=False)
+    df.to_csv(name, index=False)
 
 
 artists_list = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06evO4pjcGq",
@@ -149,7 +161,10 @@ artists_list = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06
                 "soner_id": "37i9dQZF1DZ06evO2RUXEl", "model_id": "37i9dQZF1DZ06evO1agBCV",
                 "emircan_id": "37i9dQZF1DZ06evO2UKnCF", "84_id": "37i9dQZF1DZ06evO4ziOJO",
                 "oguz_yilmaz_id": "37i9dQZF1DZ06evO4ABqCQ", "namık_id": "37i9dQZF1DZ06evO0gradV",
-                "ibocan_id": "37i9dQZF1DZ06evO3Yz8DC", "yasemin_id": "37i9dQZF1DZ06evO4Bv3Iu"}
+                "ibocan_id": "37i9dQZF1DZ06evO3Yz8DC", "yasemin_id": "37i9dQZF1DZ06evO4Bv3Iu"
+                }
+
+artists_list2 = {}
 
 artist_ids = artists_list.values()
-collect(artist_ids)
+collect(artist_ids, name="tracks.csv")
