@@ -33,36 +33,16 @@ def song_features(track):
             y, sr = librosa.load(f"songs/{record_name}.mp3")
             audio_features = sp.audio_features([track_id])[0]
             tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
-            chroma = librosa.feature.chroma_stft(y=y, sr=sr)
-            rms = librosa.feature.rms(y=y)
-            mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr)
-            zero_crossing_rate = librosa.feature.zero_crossing_rate(y=y)
-            spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=sr)
-            spectral_bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)
-            spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr)
-            spectral_flatness = librosa.feature.spectral_flatness(y=y)
-            spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)
-
-            tempo_mean = np.mean(tempo)
-            chroma_mean = np.mean(chroma)
-            chroma_std = np.std(chroma)
-            rms_mean = np.mean(rms)
-            rms_std = np.std(rms)
-            mel_spectrogram_mean = np.mean(mel_spectrogram)
-            mel_spectrogram_std = np.std(mel_spectrogram)
-            zero_crossing_rate_mean = np.mean(zero_crossing_rate)
-            zero_crossing_rate_std = np.std(zero_crossing_rate)
-            spectral_centroid_mean = np.mean(spectral_centroid)
-            spectral_centroid_std = np.std(spectral_centroid)
-            spectral_bandwidth_mean = np.mean(spectral_bandwidth)
-            spectral_bandwidth_std = np.std(spectral_bandwidth)
-            spectral_contrast_mean = np.mean(spectral_contrast)
-            spectral_contrast_std = np.std(spectral_contrast)
-            spectral_flatness_mean = np.mean(spectral_flatness)
-            spectral_flatness_std = np.std(spectral_flatness)
-            spectral_rolloff_mean = np.mean(spectral_rolloff)
-            spectral_rolloff_std = np.std(spectral_rolloff)
-
+            chroma = np.mean(librosa.feature.chroma_stft(y=y, sr=sr))
+            rms = np.mean(librosa.feature.rms(y=y))
+            mel_spectrogram = np.mean(librosa.feature.melspectrogram(y=y, sr=sr))
+            zero_crossing_rate = np.mean(librosa.feature.zero_crossing_rate(y=y))
+            spectral_centroid = np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))
+            spectral_bandwidth = np.mean(librosa.feature.spectral_bandwidth(y=y, sr=sr))
+            spectral_contrast = np.mean(librosa.feature.spectral_contrast(y=y, sr=sr))
+            spectral_flatness = np.mean(librosa.feature.spectral_flatness(y=y))
+            spectral_rolloff = np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))
+            mfcc = librosa.feature.mfcc(y=y, sr=sr)
             speechiness = audio_features['speechiness']
             duration = audio_features['duration_ms']
             valence = audio_features['valence']
@@ -74,27 +54,19 @@ def song_features(track):
             acousticness = audio_features['acousticness']
             loudness = audio_features['loudness']
 
-            return {
+            rows = {
                 'Track Name': track_name,
-                'Tempo Mean': tempo_mean,
-                'Chroma Mean': chroma_mean,
-                'Chroma Std': chroma_std,
-                'RMS Mean': rms_mean,
-                'RMS Std': rms_std,
-                'Mel Spectrogram Mean': mel_spectrogram_mean,
-                'Mel Spectrogram Std': mel_spectrogram_std,
-                'Zero Crossing Rate Mean': zero_crossing_rate_mean,
-                'Zero Crossing Rate Std': zero_crossing_rate_std,
-                'Spectral Centroid Mean': spectral_centroid_mean,
-                'Spectral Centroid Std': spectral_centroid_std,
-                'Spectral Bandwidth Mean': spectral_bandwidth_mean,
-                'Spectral Bandwidth Std': spectral_bandwidth_std,
-                'Spectral Contrast Mean': spectral_contrast_mean,
-                'Spectral Contrast Std': spectral_contrast_std,
-                'Spectral Flatness Mean': spectral_flatness_mean,
-                'Spectral Flatness Std': spectral_flatness_std,
-                'Spectral Rolloff Mean': spectral_rolloff_mean,
-                'Spectral Rolloff Std': spectral_rolloff_std,
+                'Tempo': tempo,
+                "Beat_frames": beat_frames,
+                'Chroma Mean': chroma,
+                'RMS Mean': rms,
+                'Mel Spectrogram': mel_spectrogram,
+                'Zero Crossing Rate': zero_crossing_rate,
+                'Spectral Centroid': spectral_centroid,
+                'Spectral Bandwidth': spectral_bandwidth,
+                'Spectral Contrast': spectral_contrast,
+                'Spectral Flatness': spectral_flatness,
+                'Spectral Rolloff': spectral_rolloff,
                 "Speechiness": speechiness,
                 "Duration": duration,
                 "Valence": valence,
@@ -105,8 +77,11 @@ def song_features(track):
                 "Loudness": loudness,
                 "Mode": mode,
                 "Acousticness": acousticness
-
             }
+            for i in range(mfcc.shape[0]):
+                rows[f'mfcc_{i + 1}'] = np.mean(mfcc[i, :])
+
+            return rows
         except FileNotFoundError:
             return None
 
@@ -159,12 +134,9 @@ artists_list = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06
                 "kalben_id": "37i9dQZF1DZ06evO2BNFV6", "gece_yolc_id": "37i9dQZF1DZ06evO18YRrA",
                 "kahraman_id": "37i9dQZF1DZ06evO1XGrC1", "pera_id": "37i9dQZF1DZ06evO0DNbwI",
                 "soner_id": "37i9dQZF1DZ06evO2RUXEl", "model_id": "37i9dQZF1DZ06evO1agBCV",
-                "emircan_id": "37i9dQZF1DZ06evO2UKnCF", "84_id": "37i9dQZF1DZ06evO4ziOJO",
-                "oguz_yilmaz_id": "37i9dQZF1DZ06evO4ABqCQ", "namık_id": "37i9dQZF1DZ06evO0gradV",
-                "ibocan_id": "37i9dQZF1DZ06evO3Yz8DC", "yasemin_id": "37i9dQZF1DZ06evO4Bv3Iu"
+                "emircan_id": "37i9dQZF1DZ06evO2UKnCF", "84_id": "37i9dQZF1DZ06evO4ziOJO"
                 }
 
-artists_list2 = {}
 
 artist_ids = artists_list.values()
 collect(artist_ids, name="tracks.csv")
