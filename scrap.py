@@ -6,9 +6,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import re
 import time
-
-client_id = 'd0614f277dec403bb95bf3e3a2c99418'
-client_secret = '61cfba56b3fc477781f8f240471f5809'
+from config import client_id, client_secret
 
 client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -32,7 +30,7 @@ def song_features(track):
                 f.write(response.content)
             y, sr = librosa.load(f"songs/{record_name}.mp3")
             audio_features = sp.audio_features([track_id])[0]
-            tempo, beat_frames = librosa.beat.beat_track(y=y, sr=sr)
+            tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
             chroma = np.mean(librosa.feature.chroma_stft(y=y, sr=sr))
             rms = np.mean(librosa.feature.rms(y=y))
             mel_spectrogram = np.mean(librosa.feature.melspectrogram(y=y, sr=sr))
@@ -57,7 +55,6 @@ def song_features(track):
             rows = {
                 'Track Name': track_name,
                 'Tempo': tempo,
-                "Beat_frames": beat_frames,
                 'Chroma Mean': chroma,
                 'RMS Mean': rms,
                 'Mel Spectrogram': mel_spectrogram,
@@ -136,7 +133,6 @@ artists_list = {"duman_id": "37i9dQZF1DZ06evO43NcNz", "manga_id": "37i9dQZF1DZ06
                 "soner_id": "37i9dQZF1DZ06evO2RUXEl", "model_id": "37i9dQZF1DZ06evO1agBCV",
                 "emircan_id": "37i9dQZF1DZ06evO2UKnCF", "84_id": "37i9dQZF1DZ06evO4ziOJO"
                 }
-
 
 artist_ids = artists_list.values()
 collect(artist_ids, name="tracks.csv")

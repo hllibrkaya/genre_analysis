@@ -14,15 +14,14 @@ warnings.filterwarnings("ignore")
 
 data = pd.read_csv("tracks.csv")
 df = data.copy()
-df.drop("Beat_frames", axis=1, inplace=True)
 
-df["Duration"] = (df["Duration"] /1000)
+df["Duration"] = df["Duration"] / 60000
 
 X = df.drop("Track Name", axis=1)
 
 scaler = MinMaxScaler()
 
-X = pd.DataFrame(scaler.fit_transform(X), columns= X.columns)
+X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
 
 feature_names = X.columns
 scores = lap_score.lap_score(X.to_numpy())
@@ -41,8 +40,6 @@ pca_fit = pca.fit_transform(X_new)
 model = KMeans(n_clusters=4, init="k-means++", random_state=42, n_init=1000)
 
 model.fit(pca_fit)
-
-silhouette_score(pca_fit, model.labels_)
 
 df["Cluster"] = model.labels_
 
