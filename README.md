@@ -37,7 +37,8 @@ folder.
 
 ## Methods
 
-- A backoff-retry strategy was implemented for avoiding API request rejections.- Correlation's were observed
+- A backoff-retry strategy was implemented for avoiding API request rejections.
+- Correlation's were observed
 - Audio features extracted from songs with Python's librosa library
 - Dataset normalized
 - GLSPCA method applied for feature selection
