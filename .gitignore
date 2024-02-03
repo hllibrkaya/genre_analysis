@@ -1,8 +1,10 @@
 songs
 __pycache__
 .ipynb_checkpoints/
+.idea
 .env
 .venv
-.csv # due to copyright issues
-.xlsx # due to copyright issues
+tracks.csv # due to copyright issues
+tracks_with_labels.xlsx # due to copyright issues
 config.py
+.cache

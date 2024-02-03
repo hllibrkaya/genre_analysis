@@ -5,7 +5,6 @@ from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 import warnings
 from skfeature.function.similarity_based import lap_score
-from sklearn.metrics import silhouette_score
 
 pd.set_option("display.max_columns", None)
 pd.set_option('display.width', 500)
